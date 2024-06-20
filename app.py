@@ -25,7 +25,7 @@ nltk.download('wordnet')
 app = Flask(__name__)
 
 # Set up Google Cloud credentials
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'ayb_gcs_credentials.json'
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = '/Users/lindani/Documents/Service-Accounts/ayb_gcs_credentials.json'
 
 # Initialize the BigQuery client
 client = bigquery.Client()
@@ -317,6 +317,8 @@ def recommend():
         # Load recommendations to BQ
         # recommendations_df = pd.DataFrame(recommendations)
         # create_and_load_recommendations(recommendations_df)
+        # # test_rec_card_df = pd.DataFrame(recommendations)
+        # # create_rec_games_test(test_rec_card_df)
         # manage_down_stream_update()
 
         return jsonify({
@@ -367,27 +369,67 @@ def create_and_load_recommendations(df):
         app.logger.error(f"Error loading data to BigQuery: {e}")
         raise
 
+# def create_rec_games_test(df):
+#     schema = [
+#         bigquery.SchemaField("user_id", "STRING"),
+#         bigquery.SchemaField("country", "STRING"),
+#         bigquery.SchemaField("city", "STRING"),
+#         bigquery.SchemaField("GameID", "INTEGER"),
+#         bigquery.SchemaField("City_Ranking", "INTEGER"),
+#         bigquery.SchemaField("recommendation_type", "STRING"),
+#         bigquery.SchemaField("recommendation_activity", "STRING"),
+#     ]
+
+#     dataset_id = 'ayoba-183a7.analytics_dev' 
+#     table_id = f'{dataset_id}.test_rec_card_recommendations'
+#     table = bigquery.Table(table_id, schema=schema)
+
+#     try:
+#         client.delete_table(table)
+#         print(f"Dropped table {table_id}")
+#     except Exception as e:
+#         app.logger.warning(f"Table {table_id} does not exist: {e}")
+
+#     table.clustering_fields = ["user_id"]
+#     table = client.create_table(table, exists_ok=True)
+#     print(f"Created table {table.project}.{table.dataset_id}.{table.table_id}")
+
+#     df['GameID'] = df['GameID'].fillna(-1).astype(np.int64)
+#     df['City_Ranking'] = df['City_Ranking'].fillna(-1).astype(np.int64)
+#     df['user_id'] = df['user_id'].astype(str)
+#     df['country'] = df['country'].astype(str)
+#     df['city'] = df['city'].astype(str)
+#     df['recommendation_type'] = df['recommendation_type'].astype(str)
+#     df['recommendation_activity'] = df['recommendation_activity'].astype(str)
+
+#     try:
+#         to_gbq(df, table_id, project_id=table.project, if_exists='append')
+#         print('Data loading done')
+#     except Exception as e:
+#         app.logger.error(f"Error loading data to BigQuery: {e}")
+#         raise
+
 def manage_down_stream_update():
     merge_sql = """
-    MERGE `ayoba-183a7.analytics_dw.test_rec_card_recommendations` AS A
-    USING (SELECT * FROM `ayoba-183a7.analytics_dev.test_rec_games_recommendations_activity_staging` 
-            where GameId is not null or GameId !=-1)  AS B
-    ON (A.user_id = B.user_id 
+        MERGE `ayoba-183a7.analytics_dev.test_rec_card_recommendations` AS A
+            USING ( SELECT * FROM `ayoba-183a7.analytics_dev.test_rec_games_recommendations_activity_staging`
+            WHERE GameID IS NOT NULL AND GameID != -1) AS B
+        ON (
+        A.user_id = B.user_id 
         AND A.GameID = B.GameID
-        AND B.recommendation_type = B.recommendation_type
-        AND B.recommendation_activity)
-    WHEN MATCHED AND A.ranking != B.ranking THEN
-      UPDATE SET 
+        AND A.recommendation_type = B.recommendation_type
+        AND A.recommendation_activity = B.recommendation_activity
+        )
+        WHEN MATCHED AND A.City_Ranking != B.City_Ranking THEN
 
-        A.ranking = B.ranking,
+        UPDATE SET 
+            A.City_Ranking = B.City_Ranking
 
-    WHEN NOT MATCHED BY TARGET THEN
-      INSERT (user_id, country, city, GameID, City_Ranking, recommendation_type, recommendation_activity)
-      VALUES (B.user_id, B.country, B.city, B.GameID, B.City_Ranking, B.recommendation_type, B.recommendation_activity)
-    WHEN NOT MATCHED BY SOURCE 
-        AND recommendation_type = 'user_activity' 
-        AND recommendation_type = 'games' THEN
-      DELETE
+        WHEN NOT MATCHED BY TARGET THEN
+        INSERT (user_id, country, city, GameID, City_Ranking, recommendation_type, recommendation_activity)
+        VALUES (B.user_id, B.country, B.city, B.GameID, B.City_Ranking, B.recommendation_type, B.recommendation_activity)
+        WHEN NOT MATCHED BY SOURCE THEN
+        DELETE
     """
     try:
         query_job = client.query(merge_sql)

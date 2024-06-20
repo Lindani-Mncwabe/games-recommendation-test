@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: games-recommendation-test
+  name: games-reco-test
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: games-recommendation-test
+      app: games-reco-test
   template:
     metadata:
       labels:
-        app: games-recommendation-test
+        app: ggames-reco-test
     spec:
       containers:
-      - name: games-recommendation-test
-        image: us-central1-docker.pkg.dev/ayoba-183a7/gcf-artifacts/games-recommendation-test:latest
+      - name: games-reco-test
+        image: us-central1-docker.pkg.dev/ayoba-183a7/gcf-artifacts/games-reco-test:latest
         ports:
         - containerPort: 8080
         volumeMounts:

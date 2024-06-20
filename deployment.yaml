@@ -17,3 +17,14 @@ spec:
         image: us-central1-docker.pkg.dev/ayoba-183a7/gcf-artifacts/games-recommendation-test:latest
         ports:
         - containerPort: 8080
+        volumeMounts:
+        - name: gcp-sa-key
+          mountPath: /var/secrets/google
+          readOnly: true
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/secrets/google/key.json
+      volumes:
+      - name: gcp-sa-key
+        secret:
+          secretName: gcp-sa-key

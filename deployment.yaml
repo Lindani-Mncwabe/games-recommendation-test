@@ -10,7 +10,7 @@ spec:
   template:
     metadata:
       labels:
-        app: ggames-recommendation-test
+        app: games-recommendation-test
     spec:
       containers:
       - name: games-recommendation-test

@@ -10,7 +10,7 @@ spec:
   template:
     metadata:
       labels:
-        app: ggames-reco-test
+        app: games-reco-test
     spec:
       containers:
       - name: games-reco-test

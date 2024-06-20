@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: games-recommendation-test-service
+  name: games-reco-test-service
 spec:
   selector:
-    app: games-recommendation-test
+    app: games-reco-test
   ports:
     - protocol: TCP
       port: 80

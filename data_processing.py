@@ -21,8 +21,13 @@ nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('wordnet')
 
-# Set up Google Cloud credentials
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = '/Users/lindani/Documents/Service-Accounts/ayb_gcs_credentials.json'
+# The environment variable GOOGLE_APPLICATION_CREDENTIALS is set by the deployment
+google_credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+
+if not google_credentials_path:
+    raise EnvironmentError("GOOGLE_APPLICATION_CREDENTIALS environment variable not set")
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_credentials_path
 
 # Initialize the BigQuery client
 client = bigquery.Client()

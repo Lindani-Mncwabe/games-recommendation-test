@@ -45,38 +45,33 @@ def create_and_load_recommendations(df):
     df['recommendation_activity'] = df['recommendation_activity'].astype(str)
 
     try:
-        logging.info("Starting to load data to BigQuery...")
-        start_time = time()
         to_gbq(df, table_id, project_id=table.project, if_exists='append')
-        end_time = time()
-        logging.info(f'Data loading done in {end_time - start_time} seconds')
     except Exception as e:
         logging.error(f"Error loading data to BigQuery: {e}")
-        raise
 
 def manage_down_stream_update():
-    merge_sql = """
-        MERGE `ayoba-183a7.analytics_dev.test_rec_card_recommendations` AS A
-            USING ( SELECT * FROM `ayoba-183a7.analytics_dev.test_rec_games_recommendations_activity_staging`
-            WHERE GameID IS NOT NULL AND GameID != -1) AS B
-        ON (
-        A.user_id = B.user_id 
-        AND A.GameID = B.GameID
-        AND A.recommendation_type = B.recommendation_type
-        AND A.recommendation_activity = B.recommendation_activity
-        )
-        WHEN MATCHED AND A.City_Ranking != B.City_Ranking THEN
-
-        UPDATE SET 
-            A.City_Ranking = B.City_Ranking
-
-        WHEN NOT MATCHED BY TARGET THEN
-        INSERT (user_id, country, city, GameID, City_Ranking, recommendation_type, recommendation_activity)
-        VALUES (B.user_id, B.country, B.city, B.GameID, B.City_Ranking, B.recommendation_type, B.recommendation_activity)
-        WHEN NOT MATCHED BY SOURCE THEN
-        DELETE
-    """
     try:
+        merge_sql = """
+            MERGE `ayoba-183a7.analytics_dev.test_rec_card_recommendations` AS A
+                USING ( SELECT * FROM `ayoba-183a7.analytics_dev.test_rec_games_recommendations_activity_staging`
+                WHERE GameID IS NOT NULL AND GameID != -1) AS B
+            ON (
+            A.user_id = B.user_id 
+            AND A.GameID = B.GameID
+            AND A.recommendation_type = B.recommendation_type
+            AND A.recommendation_activity = B.recommendation_activity
+            )
+            WHEN MATCHED AND A.City_Ranking != B.City_Ranking THEN
+
+            UPDATE SET 
+                A.City_Ranking = B.City_Ranking
+
+            WHEN NOT MATCHED BY TARGET THEN
+            INSERT (user_id, country, city, GameID, City_Ranking, recommendation_type, recommendation_activity)
+            VALUES (B.user_id, B.country, B.city, B.GameID, B.City_Ranking, B.recommendation_type, B.recommendation_activity)
+            WHEN NOT MATCHED BY SOURCE THEN
+            DELETE
+        """
         logging.info("Starting downstream update...")
         start_time = time()
         query_job = client.query(merge_sql)
@@ -85,17 +80,11 @@ def manage_down_stream_update():
         logging.info(f"Downstream update completed in {end_time - start_time} seconds")
     except Exception as e:
         logging.error(f"Error in downstream update: {e}")
-        raise
 
 if __name__ == '__main__':
     try:
-        logging.info("Starting recommendations process...")
         recommendations_df = generate_recommendations()
-        logging.info("Recommendations DataFrame created")
         create_and_load_recommendations(recommendations_df)
-        logging.info("Recommendations loaded to BigQuery")
         manage_down_stream_update()
-        logging.info("Process completed successfully")
     except Exception as e:
         logging.error(f"Error in the recommendations process: {e}")
-        raise

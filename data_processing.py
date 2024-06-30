@@ -30,7 +30,11 @@ if not google_credentials_path:
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_credentials_path
 
 # Initialize the BigQuery client
-client = bigquery.Client()
+client = None
+try:
+    client = bigquery.Client()
+except Exception as e:
+    logging.error("Error initializing BigQuery client: %s", e)
 
 def get_bigquery_data(client, sql_query):
     try:
@@ -39,33 +43,42 @@ def get_bigquery_data(client, sql_query):
         return df
     except Exception as e:
         logging.error(f"Error fetching data from BigQuery: {e}")
-        raise
-
-sql_query_last_game_played = """
-WITH ranked_entries AS (
-  SELECT *,
-         ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY event_date DESC) AS rank
-  FROM `ayoba-183a7.analytics_dw.user_daily_games`
-  WHERE event_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND CURRENT_DATE()
-)
-SELECT *
-FROM ranked_entries
-WHERE rank = 1 
-  AND game IS NOT NULL 
-  AND game != '';
-"""
-
-sql_query_all_available_games = """
-SELECT distinct game_title,game_id FROM `ayoba-183a7.analytics_dw.dim_games` 
-WHERE game_title IS NOT NULL AND game_title != '';
-"""
+        return None
 
 try:
-    df_user_last_game_played = get_bigquery_data(client, sql_query_last_game_played)
-    df_all_available_games = get_bigquery_data(client, sql_query_all_available_games)
+    sql_query_last_game_played = """
+    WITH ranked_entries AS (
+      SELECT *,
+             ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY event_date DESC) AS rank
+      FROM `ayoba-183a7.analytics_dw.user_daily_games`
+      WHERE event_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND CURRENT_DATE()
+    )
+    SELECT *
+    FROM ranked_entries
+    WHERE rank = 1 
+      AND game IS NOT NULL 
+      AND game != '';
+    """
 except Exception as e:
-    logging.error(f"Error initializing dataframes: {e}")
-    raise
+    logging.error("Error with SQL Query for last game played: %s", e)
+
+try:
+    sql_query_all_available_games = """ 
+    SELECT distinct game_title, game_id FROM `ayoba-183a7.analytics_dw.dim_games` 
+    WHERE game_title IS NOT NULL AND game_title != '';
+    """
+except Exception as e:
+    logging.error("Error with SQL Query for all available games: %s", e)
+
+df_user_last_game_played = None
+df_all_available_games = None
+
+if client:
+    try:
+        df_user_last_game_played = get_bigquery_data(client, sql_query_last_game_played)
+        df_all_available_games = get_bigquery_data(client, sql_query_all_available_games)
+    except Exception as e:
+        logging.error(f"Error initializing dataframes: {e}")
 
 class NltkPreprocessingSteps:
     def __init__(self, X):
@@ -81,7 +94,6 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error removing HTML tags: {e}")
-            raise
 
     def remove_accented_chars(self):
         try:
@@ -89,7 +101,6 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error removing accented characters: {e}")
-            raise
 
     def replace_diacritics(self):
         try:
@@ -97,7 +108,6 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error replacing diacritics: {e}")
-            raise
 
     def to_lower(self):
         try:
@@ -105,7 +115,6 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error converting to lower case: {e}")
-            raise
 
     def expand_contractions(self):
         try:
@@ -113,7 +122,6 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error expanding contractions: {e}")
-            raise
 
     def remove_numbers(self):
         try:
@@ -121,7 +129,6 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error removing numbers: {e}")
-            raise
 
     def remove_http(self):
         try:
@@ -129,7 +136,6 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error removing http links: {e}")
-            raise
     
     def remove_words_with_numbers(self):
         try:
@@ -137,7 +143,6 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error removing words with numbers: {e}")
-            raise
     
     def remove_digits(self):
         try:
@@ -145,31 +150,27 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error removing digits: {e}")
-            raise
-    
+
     def remove_special_character(self):
         try:
             self.X = self.X.apply(lambda x: re.sub(r'[^a-zA-Z0-9\s]+', ' ', x))
             return self
         except Exception as e:
             logging.error(f"Error removing special characters: {e}")
-            raise
-    
+
     def remove_white_spaces(self):
         try:
             self.X = self.X.apply(lambda x: re.sub(r'\s+', ' ', x).strip())
             return self
         except Exception as e:
             logging.error(f"Error removing white spaces: {e}")
-            raise
-    
+
     def remove_extra_newlines(self):
         try:
             self.X = self.X.apply(lambda x: re.sub(r'[\r|\n|\r\n]+', ' ', x))
             return self
         except Exception as e:
             logging.error(f"Error removing extra newlines: {e}")
-            raise
 
     def replace_dots_with_spaces(self):
         try:
@@ -177,7 +178,6 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error replacing dots with spaces: {e}")
-            raise
 
     def remove_punctuations_except_periods(self):
         try:
@@ -185,7 +185,6 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error removing punctuations except periods: {e}")
-            raise
 
     def remove_all_punctuations(self):
         try:
@@ -193,7 +192,6 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error removing all punctuations: {e}")
-            raise
 
     def remove_double_spaces(self):
         try:
@@ -201,7 +199,6 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error removing double spaces: {e}")
-            raise
 
     def fix_typos(self):
         try:
@@ -209,7 +206,6 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error fixing typos: {e}")
-            raise
 
     def remove_stopwords(self):
         try:
@@ -217,7 +213,6 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error removing stopwords: {e}")
-            raise
     
     def remove_singleChar(self):
         try:
@@ -225,7 +220,6 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error removing single characters: {e}")
-            raise
 
     def lemmatize(self):
         try:
@@ -234,20 +228,21 @@ class NltkPreprocessingSteps:
             return self
         except Exception as e:
             logging.error(f"Error lemmatizing: {e}")
-            raise
 
     def get_processed_text(self):
         return self.X
 
-try:
-    txt_preproc_all_games = NltkPreprocessingSteps(df_all_available_games['game_title'])
-    txt_preproc_user_games = NltkPreprocessingSteps(df_user_last_game_played['game'])
+if df_all_available_games is not None and df_user_last_game_played is not None:
+    try:
+        txt_preproc_all_games = NltkPreprocessingSteps(df_all_available_games['game_title'])
+        txt_preproc_user_games = NltkPreprocessingSteps(df_user_last_game_played['game'])
 
-    processed_text_all_games = txt_preproc_all_games.to_lower().remove_html_tags().remove_accented_chars().replace_diacritics().expand_contractions().remove_numbers().remove_digits().remove_special_character().remove_white_spaces().remove_extra_newlines().replace_dots_with_spaces().remove_punctuations_except_periods().remove_words_with_numbers().remove_singleChar().remove_double_spaces().lemmatize().remove_stopwords().get_processed_text()
-    processed_text_all_users = txt_preproc_user_games.to_lower().remove_html_tags().remove_accented_chars().replace_diacritics().expand_contractions().remove_numbers().remove_digits().remove_special_character().remove_white_spaces().remove_extra_newlines().replace_dots_with_spaces().remove_punctuations_except_periods().remove_words_with_numbers().remove_singleChar().remove_double_spaces().lemmatize().remove_stopwords().get_processed_text()
+        processed_text_all_games = txt_preproc_all_games.to_lower().remove_html_tags().remove_accented_chars().replace_diacritics().expand_contractions().remove_numbers().remove_digits().remove_special_character().remove_white_spaces().remove_extra_newlines().replace_dots_with_spaces().remove_punctuations_except_periods().remove_words_with_numbers().remove_singleChar().remove_double_spaces().lemmatize().remove_stopwords().get_processed_text()
+        processed_text_all_users = txt_preproc_user_games.to_lower().remove_html_tags().remove_accented_chars().replace_diacritics().expand_contractions().remove_numbers().remove_digits().remove_special_character().remove_white_spaces().remove_extra_newlines().replace_dots_with_spaces().remove_punctuations_except_periods().remove_words_with_numbers().remove_singleChar().remove_double_spaces().lemmatize().remove_stopwords().get_processed_text()
 
-    df_all_available_games['game_title_processed'] = processed_text_all_games
-    df_user_last_game_played['game_processed'] = processed_text_all_users
-except Exception as e:
-    logging.error(f"Error in preprocessing: {e}")
-    raise
+        df_all_available_games['game_title_processed'] = processed_text_all_games
+        df_user_last_game_played['game_processed'] = processed_text_all_users
+    except Exception as e:
+        logging.error(f"Error in preprocessing: {e}")
+else:
+    logging.error("Dataframes are not defined.")

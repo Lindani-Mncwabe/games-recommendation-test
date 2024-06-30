@@ -21,7 +21,7 @@ nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('wordnet')
 
-# The environment variable GOOGLE_APPLICATION_CREDENTIALS is set by the deployment
+# Set environment variable GOOGLE_APPLICATION_CREDENTIALS
 google_credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
 if not google_credentials_path:

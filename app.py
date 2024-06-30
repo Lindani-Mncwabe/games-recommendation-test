@@ -13,7 +13,7 @@ except Exception as e:
 def recommend():
     try:
         if recommendations_df is None:
-            return jsonify({"error": "Recommendations are not available at the moment"}), 500
+            return jsonify({"error": "No recommendations generated."}), 500
 
         data = request.get_json()
         user_id = str(data.get('user_id', '')).strip()

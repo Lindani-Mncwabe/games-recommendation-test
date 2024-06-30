@@ -4,17 +4,27 @@ from sklearn.metrics.pairwise import linear_kernel
 from data_processing import df_all_available_games, df_user_last_game_played
 import logging
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 # Initialize TF-IDF Vectorizer and compute cosine similarity matrix
+cosine_sim = None
 try:
     tfidf = TfidfVectorizer(stop_words='english')
-    tfidf_matrix = tfidf.fit_transform(df_all_available_games['game_title_processed'])
-    cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
+    if df_all_available_games is not None and 'game_title_processed' in df_all_available_games:
+        tfidf_matrix = tfidf.fit_transform(df_all_available_games['game_title_processed'])
+        cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
+    else:
+        logging.error("Dataframe or 'game_title_processed' column not found.")
 except Exception as e:
     logging.error(f"Error initializing TF-IDF vectorizer or computing cosine similarity: {e}")
-    raise
 
 def get_content_based_recommendations(game_name, df_all_available_games=df_all_available_games, cosine_sim=cosine_sim):
     try:
+        if cosine_sim is None:
+            logging.error("Cosine similarity matrix is not initialized.")
+            return []
+
         idx = df_all_available_games[df_all_available_games['game_title_processed'] == game_name].index
         if len(idx) == 0:
             return []
@@ -27,7 +37,7 @@ def get_content_based_recommendations(game_name, df_all_available_games=df_all_a
             return similar_games
     except Exception as e:
         logging.error(f"Error getting content-based recommendations for game '{game_name}': {e}")
-        raise
+        return []
 
 def get_recommendations_df():
     try:
@@ -47,7 +57,6 @@ def get_recommendations_df():
         return recommendations_df
     except Exception as e:
         logging.error(f"Error generating recommendations DataFrame: {e}")
-        raise
 
 def pre_process_recommendation(recommendations_df):
     try:
@@ -68,17 +77,15 @@ def pre_process_recommendation(recommendations_df):
         return df_user_games_recommendations[['user_id', 'country', 'city', 'GameID', 'City_Ranking', 'recommendation_type', 'recommendation_activity']]
     except Exception as e:
         logging.error(f"Error in preprocessing recommendations: {e}")
-        raise
 
 def generate_recommendations():
     try:
-        logging.info("Generating content-based recommendations...")
         recommendations_df = get_recommendations_df()
-        logging.info("Content-based recommendations generated.")
+        if recommendations_df.empty:
+            logging.error("No recommendations generated.")
         return pre_process_recommendation(recommendations_df)
     except Exception as e:
         logging.error(f"Error generating recommendations: {e}")
-        raise
 
 def get_last_played_game(user_id, df_user_last_game_played=df_user_last_game_played):
     try:
@@ -88,4 +95,4 @@ def get_last_played_game(user_id, df_user_last_game_played=df_user_last_game_pla
         return user_game[0]
     except Exception as e:
         logging.error(f"Error getting last played game for user '{user_id}': {e}")
-        raise
+        return None

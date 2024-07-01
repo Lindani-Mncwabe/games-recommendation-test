@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: games-reco-test
+  name: games-recom-test
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: games-reco-test
+      app: games-recom-test
   template:
     metadata:
       labels:
-        app: games-reco-test
+        app: games-recmo-test
     spec:
       containers:
-      - name: games-reco-test
-        image: us-central1-docker.pkg.dev/ayoba-183a7/gcf-artifacts/games-reco-test:latest
+      - name: games-recmo-test
+        image: us-central1-docker.pkg.dev/ayoba-183a7/gcf-artifacts/games-recom-test:latest
         ports:
         - containerPort: 8080
         - containerPort: 8125

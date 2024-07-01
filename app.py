@@ -12,7 +12,7 @@ app = Flask(__name__)
 # Configure logging
 log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 log_file = '/app/logs/flask.log'
-file_handler = RotatingFileHandler(log_file, maxBytes=10000, backupCount=1)
+file_handler = RotatingFileHandler(log_file, maxBytes=10240, backupCount=10)
 file_handler.setFormatter(log_formatter)
 
 app.logger.addHandler(file_handler)

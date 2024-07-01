@@ -28,8 +28,6 @@ spec:
           value: "true"
         - name: DD_TRACE_DEBUG
           value: "true"
-        - name: DD_REMOTE_CONFIGURATION_ENABLED
-          value: "true"
         - name: DD_APM_ENABLED
           value: "true"
         - name: DD_LOGS_ENABLED

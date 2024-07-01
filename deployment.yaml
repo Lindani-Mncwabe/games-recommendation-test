@@ -10,10 +10,10 @@ spec:
   template:
     metadata:
       labels:
-        app: games-recmo-test
+        app: games-recom-test
     spec:
       containers:
-      - name: games-recmo-test
+      - name: games-recom-test
         image: us-central1-docker.pkg.dev/ayoba-183a7/gcf-artifacts/games-recom-test:latest
         ports:
         - containerPort: 8080

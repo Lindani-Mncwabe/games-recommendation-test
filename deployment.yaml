@@ -19,11 +19,11 @@ spec:
         - containerPort: 8080
         resources:
           requests:
-            memory: "512Mi"   
-            cpu: "500m"       
+            memory: "259Mi"  # Minimum memory required
+            cpu: "259m"      # Minimum CPU required
           limits:
-            memory: "1024Mi"  
-            cpu: "1000m"      
+            memory: "500Mi"  # Maximum memory allowed
+            cpu: "490m"      # Maximum CPU allowed
         env:
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /var/secrets/google/key.json
@@ -36,7 +36,7 @@ spec:
         - name: DD_APM_ENABLED
           value: "true"
         - name: DD_LOGS_ENABLED
-          value: "true"
+          value: "true" 
         volumeMounts:
         - name: gcp-sa-key
           mountPath: /var/secrets/google

@@ -1,7 +1,14 @@
-
 datadog:
   apiKey: 
+    valueFrom:
+      secretKeyRef:
+        name: datadog-secret
+        key: api-key
   appKey: 
+    valueFrom:
+      secretKeyRef:
+        name: datadog-secret
+        key: app-key
   site: "app.datadoghq.com"
 
   logs:

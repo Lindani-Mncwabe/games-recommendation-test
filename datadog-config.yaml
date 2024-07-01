@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: datadog-config
+data:
+  conf.yaml: |
+    logs_enabled: true
+    logs:
+      - type: file
+        path: /app/logs/flask.log
+        service: flask-app
+        source: python
+        sourcecategory: sourcecode

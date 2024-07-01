@@ -33,14 +33,3 @@ datadog:
         value: "true"
       - name: DD_APM_ENABLED
         value: "true"
-
-  # containers:
-  #   ports:
-  #     - containerPort: 8126
-  #       hostPort: 8126
-  #       name: traceport
-  #       protocol: TCP
-  #     - containerPort: 8125
-  #       hostPort: 8125
-  #       name: dogstatsdport
-  #       protocol: UDP

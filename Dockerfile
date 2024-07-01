@@ -19,8 +19,6 @@ RUN mkdir -p /app/logs
 
 # Expose port
 EXPOSE 8080
-EXPOSE 8125  
-EXPOSE 8126  
 
 # Run app.py when the container launches using ddtrace-run
 CMD ["ddtrace-run", "python", "app.py"]

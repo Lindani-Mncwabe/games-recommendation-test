@@ -14,6 +14,7 @@ flasgger==0.9.5
 Werkzeug==2.0.3
 gunicorn==20.1.0
 pandas-gbq
-datadog
 json_log_formatter
-ddtrace
+datadog==0.43.0
+python-dotenv==0.19.2
+ddtrace==0.49.0

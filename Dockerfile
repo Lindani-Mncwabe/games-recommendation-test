@@ -14,6 +14,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the current directory contents into the container at /app
 COPY . /app
 
+# Copy Datadog configuration files
+COPY datadog-agent/conf.d/python.d/conf.yaml /etc/datadog-agent/conf.d/python.d/conf.yaml
+
 # Create the logs directory
 RUN mkdir -p /app/logs
 

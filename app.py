@@ -44,12 +44,10 @@ def recommend():
             return jsonify({"error": "No recommendations generated."}), 500
 
         data = request.get_json()
-        user_id = data.get('user_id', '')
+        user_id = str(data.get('user_id', ''))
 
         if not user_id:
             return jsonify({"error": "User ID must be provided"}), 400
-
-        user_id = str(user_id)
 
         last_played_game = wrapped_get_last_played_game(user_id)
         if not last_played_game:

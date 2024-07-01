@@ -25,7 +25,6 @@ datadog:
   dogstatsd:
     enabled: true
     nonLocalTraffic: true
-    port: 8125
 
   agent:
     image:
@@ -43,3 +42,7 @@ datadog:
       - name: datadog-config
         configMap:
           name: datadog-config
+
+useHostPID: false
+useHostNetwork: false
+useHostPort: false

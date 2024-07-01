@@ -71,7 +71,6 @@ except Exception as e:
 def index():
     logging.info('Index route accessed')
     statsd.increment('index.page_views')
-    # Sending a custom metric to Datadog for testing
     response = api.Metric.send(
         metric='recom_test_app.request_count',
         points=1,

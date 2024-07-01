@@ -19,11 +19,11 @@ spec:
         - containerPort: 8080
         resources:
           requests:
-            memory: "259Mi"  # Minimum memory required
-            cpu: "259m"      # Minimum CPU required
+            memory: "259Mi"  
+            cpu: "259m"      
           limits:
-            memory: "500Mi"  # Maximum memory allowed
-            cpu: "490m"      # Maximum CPU allowed
+            memory: "500Mi"  
+            cpu: "490m"      
         env:
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /var/secrets/google/key.json

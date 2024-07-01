@@ -17,6 +17,13 @@ spec:
         image: us-central1-docker.pkg.dev/ayoba-183a7/gcf-artifacts/games-recom-test:latest
         ports:
         - containerPort: 8080
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
         env:
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /var/secrets/google/key.json
@@ -29,7 +36,7 @@ spec:
         - name: DD_APM_ENABLED
           value: "true"
         - name: DD_LOGS_ENABLED
-          value: "true" 
+          value: "true"
         volumeMounts:
         - name: gcp-sa-key
           mountPath: /var/secrets/google

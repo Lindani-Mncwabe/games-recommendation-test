@@ -17,14 +17,32 @@ spec:
         image: us-central1-docker.pkg.dev/ayoba-183a7/gcf-artifacts/games-reco-test:latest
         ports:
         - containerPort: 8080
+        - containerPort: 8125
+          protocol: UDP
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/secrets/google/key.json
+        - name: DATADOG_ENV
+          value: "production"
+        - name: DD_TRACE_ENABLED
+          value: "true"
+        - name: DD_TRACE_DEBUG
+          value: "true"
+        - name: DD_REMOTE_CONFIGURATION_ENABLED
+          value: "true"
+        - name: DD_APM_ENABLED
+          value: "true"
+        - name: DD_DOGSTATSD_PORT
+          value: "8125"
         volumeMounts:
         - name: gcp-sa-key
           mountPath: /var/secrets/google
           readOnly: true
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /var/secrets/google/key.json
+        - name: log-volume
+          mountPath: /app/logs
       volumes:
       - name: gcp-sa-key
         secret:
           secretName: gcp-sa-key
+      - name: log-volume
+        emptyDir: {}

@@ -16,14 +16,7 @@ spec:
       - name: games-recom-test
         image: us-central1-docker.pkg.dev/ayoba-183a7/gcf-artifacts/games-recom-test:latest
         ports:
-        - containerPort: 8080
-        resources:
-          requests:
-            memory: "259Mi"  
-            cpu: "259m"      
-          limits:
-            memory: "500Mi"  
-            cpu: "490m"      
+        - containerPort: 8080    
         env:
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /var/secrets/google/key.json

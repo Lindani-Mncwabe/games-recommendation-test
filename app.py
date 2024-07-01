@@ -49,7 +49,6 @@ def recommend():
         if not user_id:
             return jsonify({"error": "User ID must be provided"}), 400
 
-        # Remove the integer conversion, and keep user_id as a string
         user_id = str(user_id)
 
         last_played_game = wrapped_get_last_played_game(user_id)

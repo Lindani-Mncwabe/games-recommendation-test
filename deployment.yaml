@@ -17,8 +17,6 @@ spec:
         image: us-central1-docker.pkg.dev/ayoba-183a7/gcf-artifacts/games-recom-test:latest
         ports:
         - containerPort: 8080
-        - containerPort: 8125
-          protocol: UDP
         env:
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /var/secrets/google/key.json
@@ -32,17 +30,21 @@ spec:
           value: "true"
         - name: DD_LOGS_ENABLED
           value: "true" 
-        - name: DD_DOGSTATSD_PORT
-          value: "8125"
         volumeMounts:
         - name: gcp-sa-key
           mountPath: /var/secrets/google
           readOnly: true
         - name: log-volume
           mountPath: /app/logs
+        - name: datadog-config
+          mountPath: /etc/datadog-agent/conf.d/python.d
+          subPath: conf.yaml
       volumes:
       - name: gcp-sa-key
         secret:
           secretName: gcp-sa-key
       - name: log-volume
         emptyDir: {}
+      - name: datadog-config
+        configMap:
+          name: datadog-config

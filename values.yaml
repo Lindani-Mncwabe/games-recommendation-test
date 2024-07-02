@@ -19,7 +19,7 @@ datadog:
 
   apm:
     enabled: true 
-    portEnabled: true
+    portEnabled: false  # Disable host port usage
     env: "production"
 
   dogstatsd:
@@ -38,7 +38,24 @@ datadog:
     volumeMounts:
       - name: datadog-config
         mountPath: /etc/datadog-agent/conf.d/python.d
+      - name: allowed-log-path
+        mountPath: /var/log/datadog
     volumes:
       - name: datadog-config
         configMap:
           name: datadog-config
+      - name: allowed-log-path
+        hostPath:
+          path: /var/log/datadog
+
+  daemonset:
+    useHostPID: false  # Ensure hostPID is disabled
+    useHostPort: false  # Avoid using host ports
+
+  agents:
+    trace:
+      enabled: true
+      port: 8126  # Ensure this port is not bound to the host
+    process:
+      enabled: true
+      port: 8126  # Ensure this port is not bound to the host

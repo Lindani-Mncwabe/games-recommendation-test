@@ -45,6 +45,14 @@ datadog:
     useHostPID: false
     useHostPort: false
 
+  agents:
+    trace:
+      enabled: true
+      port: 8126  # Make sure this port is not bound to the host
+    process:
+      enabled: true
+      port: 8126  # Make sure this port is not bound to the host
+
   containers:
     - name: agent
       volumeMounts:

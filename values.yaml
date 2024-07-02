@@ -69,8 +69,7 @@ datadog:
 
   volumes:
     - name: allowed-log-path
-      hostPath:
-        path: /var/log/datadog
+      emptyDir: {}  # Use emptyDir instead of hostPath
     - name: datadog-config
       configMap:
         name: datadog-config

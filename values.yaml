@@ -17,7 +17,7 @@ datadog:
 
   apm:
     enabled: true
-    portEnabled: false
+    portEnabled: false  # Ensure host port is disabled
     env: "production"
 
   dogstatsd:
@@ -47,12 +47,10 @@ datadog:
 
   daemonset:
     useHostPID: false
-    useHostPort: false
+    useHostPort: false  # Ensure host port is disabled
 
   agents:
     trace:
       enabled: true
-      port: 8126  # Ensure this port is not bound to the host
     process:
       enabled: true
-      port: 8126  # Ensure this port is not bound to the host

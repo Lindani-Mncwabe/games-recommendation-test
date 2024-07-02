@@ -36,10 +36,14 @@ datadog:
     volumeMounts:
       - name: datadog-config
         mountPath: /etc/datadog-agent/conf.d/python.d
+      - name: allowed-log-path
+        mountPath: /var/log/datadog
     volumes:
       - name: datadog-config
         configMap:
           name: datadog-config
+      - name: allowed-log-path
+        emptyDir: {}  # Use emptyDir instead of hostPath
 
   daemonset:
     useHostPID: false
@@ -48,28 +52,7 @@ datadog:
   agents:
     trace:
       enabled: true
-      port: 8126  # Make sure this port is not bound to the host
+      port: 8126  # Ensure this port is not bound to the host
     process:
       enabled: true
-      port: 8126  # Make sure this port is not bound to the host
-
-  containers:
-    - name: agent
-      volumeMounts:
-        - mountPath: /var/log/datadog
-          name: allowed-log-path
-    - name: trace-agent
-      volumeMounts:
-        - mountPath: /var/log/datadog
-          name: allowed-log-path
-    - name: process-agent
-      volumeMounts:
-        - mountPath: /var/log/datadog
-          name: allowed-log-path
-
-  volumes:
-    - name: allowed-log-path
-      emptyDir: {}  # Use emptyDir instead of hostPath
-    - name: datadog-config
-      configMap:
-        name: datadog-config
+      port: 8126  # Ensure this port is not bound to the host

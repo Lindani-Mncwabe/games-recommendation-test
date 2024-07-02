@@ -67,6 +67,10 @@ datadog:
         - mountPath: /var/log/datadog
           name: allowed-log-path
 
-  volumes:
+volumes:
     - name: allowed-log-path
-      emptyDir: {}  # Replace hostPath with emptyDir
+      hostPath:
+        path: /var/log/datadog
+  volumeMounts:
+    - mountPath: /var/log/datadog
+      name: allowed-log-path

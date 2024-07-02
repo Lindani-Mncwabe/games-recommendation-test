@@ -42,7 +42,3 @@ datadog:
       - name: datadog-config
         configMap:
           name: datadog-config
-
-useHostPID: false
-useHostNetwork: false
-useHostPort: false

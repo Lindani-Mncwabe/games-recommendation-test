@@ -1,10 +1,10 @@
 datadog:
-  apiKey: 
+  apiKey:
     valueFrom:
       secretKeyRef:
         name: datadog-secret
         key: api-key
-  appKey: 
+  appKey:
     valueFrom:
       secretKeyRef:
         name: datadog-secret
@@ -14,12 +14,10 @@ datadog:
   logs:
     enabled: true
     containerCollectAll: true
-    containerCollectUsingFiles: true
-    containerCollectUsingVolumes: true
 
   apm:
-    enabled: true 
-    portEnabled: false  # Disable host port usage
+    enabled: true
+    portEnabled: false
     env: "production"
 
   dogstatsd:
@@ -29,7 +27,7 @@ datadog:
   agent:
     image:
       repository: "gcr.io/datadoghq/agent"
-      tag: "7.31.1"
+      tag: "7.39.1"
     env:
       - name: DD_LOGS_INJECTION
         value: "true"
@@ -38,24 +36,29 @@ datadog:
     volumeMounts:
       - name: datadog-config
         mountPath: /etc/datadog-agent/conf.d/python.d
-      - name: allowed-log-path
-        mountPath: /var/log/datadog
     volumes:
       - name: datadog-config
         configMap:
           name: datadog-config
-      - name: allowed-log-path
-        hostPath:
-          path: /var/log/datadog
 
   daemonset:
-    useHostPID: false  # Ensure hostPID is disabled
-    useHostPort: false  # Avoid using host ports
+    useHostPID: false
+    useHostPort: false
 
-  agents:
-    trace:
-      enabled: true
-      port: 8126  # Ensure this port is not bound to the host
-    process:
-      enabled: true
-      port: 8126  # Ensure this port is not bound to the host
+  containers:
+    - name: agent
+      volumeMounts:
+        - mountPath: /var/log/datadog
+          name: allowed-log-path
+    - name: trace-agent
+      volumeMounts:
+        - mountPath: /var/log/datadog
+          name: allowed-log-path
+    - name: process-agent
+      volumeMounts:
+        - mountPath: /var/log/datadog
+          name: allowed-log-path
+
+  volumes:
+    - name: allowed-log-path
+      emptyDir: {}  # Replace hostPath with emptyDir

@@ -14,9 +14,6 @@ spec:
       containers:
         - name: agent
           image: datadog/agent:latest
-          ports:
-            - containerPort: 8126
-              name: trace-port
           env:
             - name: DD_LOGS_INJECTION
               value: "true"
@@ -29,17 +26,11 @@ spec:
               mountPath: /var/log/datadog
         - name: trace-agent
           image: datadog/agent:latest
-          ports:
-            - containerPort: 8126
-              name: trace-port
           volumeMounts:
             - name: allowed-log-path
               mountPath: /var/log/datadog
         - name: process-agent
           image: datadog/agent:latest
-          ports:
-            - containerPort: 8126
-              name: trace-port
           volumeMounts:
             - name: allowed-log-path
               mountPath: /var/log/datadog

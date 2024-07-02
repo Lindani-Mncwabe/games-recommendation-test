@@ -29,7 +29,7 @@ spec:
         - name: DD_APM_ENABLED
           value: "true"
         - name: DD_LOGS_ENABLED
-          value: "true" 
+          value: "true"
         volumeMounts:
         - name: gcp-sa-key
           mountPath: /var/secrets/google
@@ -38,6 +38,8 @@ spec:
           mountPath: /app/logs
         - name: datadog-config
           mountPath: /etc/datadog-agent/conf.d/python.d
+        - name: allowed-log-path
+          mountPath: /var/log/datadog
       volumes:
       - name: gcp-sa-key
         secret:
@@ -47,3 +49,5 @@ spec:
       - name: datadog-config
         configMap:
           name: datadog-config
+      - name: allowed-log-path
+        emptyDir: {}  # Use emptyDir instead of hostPath

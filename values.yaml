@@ -66,11 +66,11 @@ datadog:
       volumeMounts:
         - mountPath: /var/log/datadog
           name: allowed-log-path
-
-volumes:
-    - name: allowed-log-path
-      hostPath:
-        path: /var/log/datadog
-  volumeMounts:
-    - mountPath: /var/log/datadog
-      name: allowed-log-path
+          
+    volumes:
+        - name: allowed-log-path
+          hostPath:
+            path: /var/log/datadog
+      volumeMounts:
+        - mountPath: /var/log/datadog
+          name: allowed-log-path

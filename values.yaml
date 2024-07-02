@@ -53,24 +53,24 @@ datadog:
       enabled: true
       port: 8126  # Make sure this port is not bound to the host
 
-  # containers:
-  #   - name: agent
-  #     volumeMounts:
-  #       - mountPath: /var/log/datadog
-  #         name: allowed-log-path
-  #   - name: trace-agent
-  #     volumeMounts:
-  #       - mountPath: /var/log/datadog
-  #         name: allowed-log-path
-  #   - name: process-agent
-  #     volumeMounts:
-  #       - mountPath: /var/log/datadog
-  #         name: allowed-log-path
+  containers:
+    - name: agent
+      volumeMounts:
+        - mountPath: /var/log/datadog
+          name: allowed-log-path
+    - name: trace-agent
+      volumeMounts:
+        - mountPath: /var/log/datadog
+          name: allowed-log-path
+    - name: process-agent
+      volumeMounts:
+        - mountPath: /var/log/datadog
+          name: allowed-log-path
 
-  # volumes:
-  #   - name: allowed-log-path
-  #     hostPath:
-  #       path: /var/log/datadog
-  #   - name: datadog-config
-  #     configMap:
-  #       name: datadog-config
+  volumes:
+    - name: allowed-log-path
+      hostPath:
+        path: /var/log/datadog
+    - name: datadog-config
+      configMap:
+        name: datadog-config

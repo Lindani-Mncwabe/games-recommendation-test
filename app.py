@@ -4,6 +4,14 @@ import logging
 from logging.handlers import RotatingFileHandler
 from ddtrace import tracer, patch_all, config
 from datadog import statsd, initialize, api
+import os
+
+# Initializa datadog api and app key
+options = {
+    'api_key': os.environ['DATADOG_API_KEY'],
+    'app_key': os.environ['DATADOG_APP_KEY']
+}
+initialize(**options)
 
 # Enable Datadog tracing
 patch_all()

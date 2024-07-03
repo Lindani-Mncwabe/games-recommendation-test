@@ -14,12 +14,20 @@ spec:
     spec:
       containers:
       - name: games-recom-test
-        image: us-central1-docker.pkg.dev/ayoba-183a7/gcf-artifacts/games-recom-test:latest
+        image: gcr.io/ornate-genre-425416-q8/games-recom-test:latest
         ports:
         - containerPort: 8080
         env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /var/secrets/google/key.json
+        - name: DATADOG_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: datadog-secret
+              key: api-key
+        - name: DATADOG_APP_KEY
+          valueFrom:
+            secretKeyRef:
+              name: datadog-secret
+              key: app-key
         - name: DATADOG_ENV
           value: "production"
         - name: DD_TRACE_ENABLED
@@ -30,10 +38,13 @@ spec:
           value: "true"
         - name: DD_LOGS_ENABLED
           value: "true"
+        - name: DD_REMOTE_CONFIGURATION_ENABLED
+          value: "false"
+        - name: DD_AGENT_HOST
+          value: "datadog-agent"
+        - name: DD_TRACE_AGENT_PORT
+          value: "8126"
         volumeMounts:
-        - name: gcp-sa-key
-          mountPath: /var/secrets/google
-          readOnly: true
         - name: log-volume
           mountPath: /app/logs
         - name: datadog-config
@@ -41,13 +52,10 @@ spec:
         - name: allowed-log-path
           mountPath: /var/log/datadog
       volumes:
-      - name: gcp-sa-key
-        secret:
-          secretName: gcp-sa-key
       - name: log-volume
         emptyDir: {}
       - name: datadog-config
         configMap:
           name: datadog-config
       - name: allowed-log-path
-        emptyDir: {}  # Use emptyDir instead of hostPath
+        emptyDir: {}  

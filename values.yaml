@@ -33,6 +33,16 @@ datadog:
         value: "true"
       - name: DD_APM_ENABLED
         value: "true"
+      - name: DD_REMOTE_CONFIGURATION_ENABLED
+        value: "false"
+      - name: DATADOG_ENV
+        value: "production"
+      - name: DD_TRACE_ENABLED
+        value: "true"
+      - name: DD_TRACE_DEBUG
+        value: "true"
+      - name: DD_LOGS_ENABLED
+        value: "true"
     volumeMounts:
       - name: datadog-config
         mountPath: /etc/datadog-agent/conf.d/python.d

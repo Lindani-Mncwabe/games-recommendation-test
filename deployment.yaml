@@ -28,6 +28,8 @@ spec:
             secretKeyRef:
               name: datadog-secret
               key: app-key
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/secrets/google/key.json
         - name: DATADOG_ENV
           value: "production"
         - name: DD_TRACE_ENABLED

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: games-recom-test
-        image: gcr.io/ornate-genre-425416-q8/games-recom-test:latest
+        image: us-central1-docker.pkg.dev/ayoba-183a7/gcf-artifacts/games-recom-test:latest
         ports:
         - containerPort: 8080
         env:

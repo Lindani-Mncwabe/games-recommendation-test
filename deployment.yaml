@@ -47,6 +47,9 @@ spec:
         - name: DD_TRACE_AGENT_PORT
           value: "8126"
         volumeMounts:
+        - name: gcp-sa-key
+          mountPath: /var/secrets/google
+          readOnly: true
         - name: log-volume
           mountPath: /app/logs
         - name: datadog-config
@@ -54,6 +57,9 @@ spec:
         - name: allowed-log-path
           mountPath: /var/log/datadog
       volumes:
+       - name: gcp-sa-key
+        secret:
+          secretName: gcp-sa-key
       - name: log-volume
         emptyDir: {}
       - name: datadog-config

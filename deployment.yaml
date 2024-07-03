@@ -56,8 +56,8 @@ spec:
           mountPath: /etc/datadog-agent/conf.d/python.d
         - name: allowed-log-path
           mountPath: /var/log/datadog
-      volumes:
-       - name: gcp-sa-key
+     volumes:
+      - name: gcp-sa-key
         secret:
           secretName: gcp-sa-key
       - name: log-volume
@@ -66,4 +66,4 @@ spec:
         configMap:
           name: datadog-config
       - name: allowed-log-path
-        emptyDir: {}  
+        emptyDir: {}

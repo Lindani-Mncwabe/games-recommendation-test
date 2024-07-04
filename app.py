@@ -3,7 +3,9 @@ from recommendation import generate_recommendations, get_last_played_game
 import logging
 from logging.handlers import RotatingFileHandler
 from ddtrace import tracer, patch_all, config
+from ddtrace.internal.logger import get_logger
 from datadog import statsd, initialize, api
+from flasgger import Swagger
 import os
 
 # Initializa datadog api and app key
@@ -22,6 +24,7 @@ config.tracer.port = 8126
 
 # Initialize Flask app
 app = Flask(__name__)
+swagger = Swagger(app)  # Initialize Swagger
 
 # Configure logging
 log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
@@ -30,7 +33,11 @@ file_handler = RotatingFileHandler(log_file, maxBytes=10240, backupCount=10)
 file_handler.setFormatter(log_formatter)
 
 app.logger.addHandler(file_handler)
-app.logger.setLevel(logging.INFO)
+app.logger.setLevel(logging.ERROR)  
+
+# Set Datadog internal logger to ERROR to avoid excessive debug and info logs
+dd_logger = get_logger('ddtrace')
+dd_logger.setLevel(logging.ERROR)
 
 # Set Datadog APM environment and service name
 config.env = "production"
@@ -94,6 +101,61 @@ def index():
 @app.route('/recommend', methods=['POST'])
 @tracer.wrap(name='recommend', service='games-recom-test')
 def recommend():
+    """
+    Post endpoint to generate game recommendations.
+    ---
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+            - user_id
+          properties:
+            user_id:
+              type: string
+              description: The user ID to fetch recommendations for, passed as a JSON object.
+              example: '{"user_id": "+2250545356890"}'
+    responses:
+      200:
+        description: Returns game recommendations
+        schema:
+          type: object
+          properties:
+            last_played_game:
+              type: string
+              description: Last played game
+            recommendations:
+              type: array
+              items:
+                type: object
+                description: Game recommendation
+      400:
+        description: Error if user_id is not provided
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              description: Error message
+      404:
+        description: Error if no data is found for the user_id
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              description: Error message
+      500:
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              description: Error message
+    """
     try:
         if recommendations_df is None:
             statsd.increment('recommend_test.error', tags=["type:no_recommendations"])

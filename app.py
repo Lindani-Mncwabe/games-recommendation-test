@@ -116,7 +116,7 @@ def recommend():
             user_id:
               type: string
               description: The user ID to fetch recommendations for, passed as a JSON object.
-              example: '{"user_id": "+2250545356890"}'
+              example: "+2250545356890"
     responses:
       200:
         description: Returns game recommendations

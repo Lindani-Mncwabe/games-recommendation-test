@@ -2,13 +2,13 @@
 FROM python:3.10-slim  
 
 # Set the working directory in the container
-WORKDIR /app
+WORKDIR /app/contacts-chat-recommendations
 
 # Copy the requirements file from the root directory of the project
 COPY ../requirements.txt /app/
 
 # Copy the contents of the contacts-chat-recommendations directory into the container
-COPY . /app/
+COPY . /app/contacts-chat-recommendations/
 
 # Set the environment variable for Google Application Credentials
 ENV GOOGLE_APPLICATION_CREDENTIALS="ayoba-credentials.json"
@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install the dependencies from requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Make port 8000 available to the world outside this container
 EXPOSE 8000
